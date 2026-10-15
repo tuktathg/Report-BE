@@ -114,6 +114,7 @@
     </div>
   </div>
 
+  <div id="statusWarn" style="display:none;background:var(--amber-soft);color:#7A4A06;border:1px solid #EBC98F;border-radius:8px;padding:10px 14px;font-size:13px;line-height:1.6;margin-bottom:16px;"></div>
   <div id="loadingBox" class="loading">กำลังโหลดข้อมูลจาก Google Sheets…</div>
   <div id="errorBox" class="errbox" style="display:none;"></div>
 
@@ -534,8 +535,26 @@ function processData(beAllRowsRaw, recruitRowsRaw){
   });
   window.__recruitByStore = [...chosenByStore.values()];
 
-  resigned2026 = [...empMap.values()].filter(e=>
-    e.status === 'ลาออก' && e.lastDate && e.lastDate.getFullYear() === 2026
+  // ตรวจว่าคอลัมน์ J (สถานะ BE) มีค่าสถานะจริงหรือไม่ — ถ้าสูตรในชีตเสีย จะเป็นชื่อคน/#N/A
+  const allEmps = [...empMap.values()];
+  const statusLooksValid = allEmps.some(e=> /ลาออก|ทำงาน/.test(e.status||''));
+  let maxLogDate = null;
+  allEmps.forEach(e=>{ if(e.lastDate && (!maxLogDate || e.lastDate > maxLogDate)) maxLogDate = e.lastDate; });
+  const INACTIVE_DAYS = 14;
+  const isResigned = e=>{
+    if(statusLooksValid) return (e.status||'').includes('ลาออก');
+    // สำรอง: ไม่มีเช็คอินเลย 14 วันก่อนวันล่าสุดใน log = ถือว่าลาออก
+    return maxLogDate && e.lastDate && (maxLogDate - e.lastDate)/86400000 >= INACTIVE_DAYS;
+  };
+  const warnBox = document.getElementById('statusWarn');
+  if(warnBox){
+    warnBox.style.display = statusLooksValid ? 'none' : 'block';
+    warnBox.textContent = statusLooksValid ? '' :
+      `⚠ คอลัมน์ "สถานะ BE" ในชีต "BE ทั้งหมด" ไม่มีค่าสถานะ (สูตรในชีตน่าจะเสีย) — ตอนนี้ระบบประมาณการลาออกจาก "ไม่มีเช็คอิน ${INACTIVE_DAYS} วันขึ้นไป" นับจากวันล่าสุดใน log (${fmtDate(maxLogDate)}) แทน ตัวเลขจะกลับเป็นแบบเดิมอัตโนมัติเมื่อแก้สูตรในชีตแล้ว`;
+  }
+
+  resigned2026 = allEmps.filter(e=>
+    isResigned(e) && e.lastDate && e.lastDate.getFullYear() === 2026
   ).map(e=>{
     const info = storeTypeProvinceMap.get(e.store) || {};
     const area = recruitStoreAreaMap.get(e.store) || info.province || 'ไม่ทราบพื้นที่';
