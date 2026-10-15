@@ -104,8 +104,8 @@
 
   <div class="topbar">
     <div>
-      <h1>Report BE</h1>
-      <p class="subtitle">—</p>
+      <h1>รายงานร้านค้า &amp; การลาออก BE</h1>
+      <p class="subtitle">ดึงข้อมูลสดจาก Google Sheets ทุกครั้งที่เปิดหน้านี้ — ไม่ต้องอัปโหลดไฟล์</p>
     </div>
     <div class="status-box">
       <span class="dot" id="statusDot"></span>
@@ -121,8 +121,10 @@
   <div id="content" style="display:none;">
 
     <div class="tabs">
-      <button class="tab-btn active" data-page="page1">ร้านค้าทั้งหมด</button>
-      <button class="tab-btn" data-page="page2">การลาออก (2026)</button>
+      <button class="tab-btn active" data-page="page1">1. ร้านค้าทั้งหมด</button>
+      <button class="tab-btn" data-page="page2">2. การลาออก (2026)</button>
+      <button class="tab-btn" data-page="page3">3. สรรหา</button>
+      <button class="tab-btn" data-page="page4">4. สรรหา (ไม่รวมค่าติดลบ)</button>
     </div>
 
     <!-- ================= PAGE 1 ================= -->
@@ -130,34 +132,37 @@
       <div class="kpi-grid">
         <div class="kpi">
           <div class="num" id="kpiAllStores">–</div>
-          <div class="label">ร้านปัจจุบัน (ทุกสถานะ)</div>
+          <div class="label">ร้านค้าทั้งหมดในระบบ (ทุกสถานะ)</div>
         </div>
         <div class="kpi warn">
           <div class="num" id="kpiRecruitStores">–</div>
-          <div class="label">ร้านที่ต้องสรรหา (สถานะ "สรรหา" ใน Data)</div>
+          <div class="label">ร้านที่ต้องสรรหา (สถานะ "สรรหา")</div>
         </div>
         <div class="kpi">
           <div class="num" id="kpiHadBE">–</div>
-          <div class="label">เคยมี BE</div>
+          <div class="label">ในนั้น เคยมี BE ทำงานมาก่อน</div>
         </div>
         <div class="kpi warn">
           <div class="num" id="kpiNeverBE">–</div>
-          <div class="label">ไม่เคยมี BE</div>
+          <div class="label">ในนั้น ไม่เคยมี BE ทำงานเลย</div>
         </div>
       </div>
 
       <div class="panel">
-        <h2>ประเภทเบียร์</h2>
+        <h2>ประเภทเบียร์ — จำนวนร้าน</h2>
+        <p class="desc">จัดกลุ่มจากคอลัมน์ประเภทเบียร์ในชีต "ร้านที่ต้องสรรหา": มีคำว่า "เบียร์สด" = เบียร์สด นอกนั้นถือเป็นเบียร์ขวด — คลิกที่วงกลมเพื่อดูเฉพาะประเภทนั้น (คลิกซ้ำเพื่อยกเลิก) จะกรองตารางด้านล่างให้ด้วย</p>
         <div class="chart-box" style="height:220px;"><canvas id="beerTypeChart"></canvas></div>
       </div>
 
       <div class="panel">
-        <h2>BE ที่ต้องสรรหา</h2>
+        <h2>BE ที่ต้องสรรหา — แยกตามจำนวนวันว่าง</h2>
+        <p class="desc">นับเฉพาะร้านสถานะ "สรรหา" จัดกลุ่มตามระยะเวลาที่ว่างแล้วแยกสีตามว่าร้านนั้นเคยมี BE ทำงานมาก่อนหรือไม่ — ยิ่งแท่งขวาสุดสูง ยิ่งมีร้านที่ว่างนานผิดปกติเยอะ</p>
         <div class="chart-box" style="height:260px;"><canvas id="vacancyChart"></canvas></div>
       </div>
 
       <div class="panel">
-        <h2>ร้านที่ต้องสรรหา</h2>
+        <h2>ร้านที่ต้องสรรหา — เคยมี BE ทำงานอยู่หรือไม่</h2>
+        <p class="desc">จับคู่รหัสร้านจากชีต "ร้านที่ต้องสรรหา" กับประวัติเช็คอินทั้งหมดในชีต "BE" — ถ้ารหัสร้านเคยปรากฏใน log เช็คอิน แปลว่าเคยมี BE ประจำร้านนี้มาก่อน (ถ้าร้านไหนมี 2 แถว หมายถึงร้านนั้นต้องการ BE 2 คน)</p>
         <div class="controls">
           <div class="seg" id="statusFilterSeg">
             <button data-val="สรรหา" class="active">เฉพาะสถานะ "สรรหา"</button>
@@ -181,7 +186,7 @@
         <div class="tablewrap">
           <table>
             <thead><tr id="report1HeadRow">
-              <th data-sort="area">โซน</th><th data-sort="rawArea">พื้นที่</th><th data-sort="storeCode">รหัสร้าน</th><th data-sort="storeName">ชื่อร้าน</th><th data-sort="beerType">ประเภทเบียร์</th><th data-sort="storeType">ประเภทร้าน</th><th data-sort="jobStatus">สถานะทำงาน</th><th data-sort="recruitGroup">ระยะเวลาที่ว่าง</th><th data-sort="hadBE">BE</th>
+              <th data-sort="area">โซน</th><th data-sort="rawArea">พื้นที่</th><th data-sort="storeCode">รหัสร้าน</th><th data-sort="storeName">ชื่อร้าน</th><th data-sort="beerType">ประเภทเบียร์</th><th data-sort="storeType">ประเภทร้าน</th><th data-sort="jobStatus">สถานะทำงาน</th><th data-sort="recruitGroup">ระยะเวลาที่ว่าง</th><th data-sort="hadBE">เคยมี BE?</th>
             </tr></thead>
             <tbody id="report1Body"></tbody>
           </table>
@@ -193,7 +198,7 @@
     <div class="page" id="page2">
       <div class="controls" style="margin-bottom:16px;">
         <div class="seg" id="scopeFilterSeg">
-          <button data-val="IN300" class="active">ร้านปัจจุบัน</button>
+          <button data-val="IN300" class="active">ร้านปัจจุบัน (ในรายชื่อ 300 ร้าน)</button>
           <button data-val="OUT300">ร้านนอกเหนือรายชื่อ</button>
         </div>
         <span class="count-pill" id="scopeCountPill"></span>
@@ -220,7 +225,8 @@
       </div>
 
       <div class="panel">
-        <h2>การลาออกแยกโซน</h2>
+        <h2>การลาออกแยกโซน ตามเดือน + อัตราลาออกต่อร้าน</h2>
+        <p class="desc">จำนวนคนลาออกต่อโซนต่อเดือน (2026) เทียบกับจำนวนร้านทั้งหมดในโซนนั้น — % turnover = จำนวนคนลาออกทั้งปี ÷ จำนวนร้านทั้งหมด — คลิกที่ชื่อโซนเพื่อดูพื้นที่ย่อยในโซนนั้น และกรองข้อมูลด้านล่างทั้งหมด</p>
         <div class="tablewrap" style="max-height:420px;">
           <table>
             <thead><tr id="zoneMonthHeadRow"><th>โซน</th></tr></thead>
@@ -230,8 +236,8 @@
       </div>
 
       <div class="panel" id="areaMonthPanel" style="display:none;">
-        <h2 id="areaMonthTitle">การลาออกแยกพื้นที่</h2>
-        <p class="desc"> — <span id="rawAreaClearWrap" style="display:none;">— <button class="refresh" id="clearRawAreaBtn" style="padding:3px 10px;">✕ ล้างตัวกรองพื้นที่นี้</button></span></p>
+        <h2 id="areaMonthTitle">การลาออกแยกพื้นที่ ตามเดือน + อัตราลาออกต่อร้าน</h2>
+        <p class="desc">แสดงทุกโซนตามค่าเริ่มต้น — คลิกชื่อโซนในตารางด้านบนเพื่อกรองให้เหลือเฉพาะพื้นที่ในโซนนั้น คลิกชื่อพื้นที่เพื่อกรองข้อมูลทั้งหน้าต่อ <span id="rawAreaClearWrap" style="display:none;">— <button class="refresh" id="clearRawAreaBtn" style="padding:3px 10px;">✕ ล้างตัวกรองพื้นที่นี้</button></span></p>
         <div class="tablewrap" style="max-height:420px;">
           <table>
             <thead><tr id="areaMonthHeadRow"><th>พื้นที่</th></tr></thead>
@@ -240,14 +246,26 @@
         </div>
       </div>
 
+      <div class="panel" id="storeMonthPanel" style="display:none;">
+        <h2 id="storeMonthTitle">การลาออกแยกร้าน ตามเดือน</h2>
+        <p class="desc">แสดงเมื่อเลือกโซนแล้วเท่านั้น — เฉพาะร้านที่มีคนลาออกจริงในโซน (หรือพื้นที่ ถ้าเลือกไว้ด้วย) นี้เท่านั้น</p>
+        <div class="tablewrap" style="max-height:420px;">
+          <table>
+            <thead><tr id="storeMonthHeadRow"><th>ร้าน</th></tr></thead>
+            <tbody id="storeMonthBody"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="panel">
         <h2>ประเภทร้านที่ลาออก</h2>
+        <p class="desc">ประเภทร้านมาจากชีต "BE ทั้งหมด" (คอลัมน์ประเภทร้าน) ของร้านล่าสุดที่ BE คนนั้นทำงานอยู่</p>
         <div class="barlist" id="typeBreakdown"></div>
       </div>
 
       <div class="panel" id="areaDetailPanel" style="display:none;">
         <h2 id="areaDetailTitle">ร้านทั้งหมดในพื้นที่</h2>
-        <p class="desc">—</p>
+        <p class="desc">รายชื่อร้านทั้งหมดในพื้นที่นี้ (จากชีต "ร้านที่ต้องสรรหา") — คลิกพื้นที่อื่นในกราฟด้านบนเพื่อดูพื้นที่อื่น หรือกด "ล้างตัวกรองพื้นที่" เพื่อปิด</p>
         <div class="controls">
           <select id="areaDetailStatusFilter"><option value="ALL">ทุกสถานะ</option></select>
           <select id="areaDetailTypeFilter"><option value="ALL">ทุกประเภทร้าน</option></select>
@@ -256,21 +274,22 @@
         </div>
         <div class="tablewrap" style="max-height:300px;">
           <table>
-            <thead><tr><th>รหัสร้าน</th><th>ชื่อร้าน</th><th>โซน</th><th>พื้นที่</th><th>ประเภทเบียร์</th><th>ประเภทร้าน</th><th>สถานะทำงาน</th><th>BE</th><th>จำนวนคนลาออก</th></tr></thead>
+            <thead><tr><th>รหัสร้าน</th><th>ชื่อร้าน</th><th>โซน</th><th>พื้นที่</th><th>ประเภทเบียร์</th><th>ประเภทร้าน</th><th>สถานะทำงาน</th><th>เคยมี BE?</th><th>จำนวนคนลาออก</th></tr></thead>
             <tbody id="areaDetailBody"></tbody>
           </table>
         </div>
       </div>
 
       <div class="panel" id="typeDetailPanel" style="display:none;">
-        <h2 id="typeDetailTitle">ร้านที่ลาออก</h2>
+        <h2 id="typeDetailTitle">ร้านที่ลาออกในประเภทที่เลือก</h2>
+        <p class="desc">รายชื่อร้าน ชื่อร้าน และพื้นที่ ที่มีคนลาออกในประเภทร้านนี้ — คลิกประเภทอื่นด้านบนเพื่อดูประเภทอื่น หรือกด "ล้างตัวกรองประเภทร้าน" เพื่อปิด</p>
         <div class="controls">
           <input type="text" id="typeDetailSearch" placeholder="ค้นหาชื่อร้าน / รหัสร้าน / พื้นที่...">
           <span class="count-pill" id="typeDetailCount"></span>
         </div>
         <div class="tablewrap" style="max-height:300px;">
           <table>
-            <thead><tr><th>รหัสร้าน</th><th>ชื่อร้าน</th><th>พื้นที่</th><th>สถานะทำงาน</th><th>BE</th><th>จำนวนคนลาออก</th></tr></thead>
+            <thead><tr><th>รหัสร้าน</th><th>ชื่อร้าน</th><th>พื้นที่</th><th>สถานะทำงาน</th><th>เคยมี BE?</th><th>จำนวนคนลาออก</th></tr></thead>
             <tbody id="typeDetailBody"></tbody>
           </table>
         </div>
@@ -278,21 +297,32 @@
 
       <div class="panel" id="combinedDetailPanel" style="display:none;">
         <h2 id="combinedDetailTitle">ร้านตามประเภทและพื้นที่ที่เลือก</h2>
+        <p class="desc">เมื่อเลือกทั้งพื้นที่และประเภทร้านพร้อมกัน จะแสดงเฉพาะร้านที่ตรงทั้งสองเงื่อนไขในตารางเดียวนี้ — กด "ล้างตัวกรองพื้นที่" หรือ "ล้างตัวกรองประเภทร้าน" เพื่อกลับไปดูแยกกัน</p>
         <div class="controls">
+          <select id="combinedRawAreaFilter"><option value="ALL">ทุกพื้นที่</option></select>
+          <select id="combinedStatusFilter"><option value="ALL">ทุกสถานะ</option></select>
+          <select id="combinedHadBEFilter">
+            <option value="ALL">เคยมี BE: ทั้งหมด</option>
+            <option value="YES">เคยมี BE</option>
+            <option value="NO">ไม่เคยมี BE</option>
+          </select>
+          <select id="combinedBeerTypeFilter"><option value="ALL">ทุกประเภทเบียร์</option></select>
           <input type="text" id="combinedDetailSearch" placeholder="ค้นหาชื่อร้าน / รหัสร้าน...">
           <span class="count-pill" id="combinedDetailCount"></span>
         </div>
         <div class="tablewrap" style="max-height:300px;">
           <table>
-            <thead><tr><th>รหัสร้าน</th><th>ชื่อร้าน</th><th>พื้นที่</th><th>สถานะทำงาน</th><th>BE</th><th>จำนวนคนลาออก</th></tr></thead>
+            <thead><tr id="combinedDetailHeadRow">
+              <th data-sort="storeCode">รหัสร้าน</th><th data-sort="storeName">ชื่อร้าน</th><th data-sort="area">โซน</th><th data-sort="rawArea">พื้นที่</th><th data-sort="beerType">ประเภทเบียร์</th><th data-sort="jobStatus">สถานะทำงาน</th><th data-sort="hadBE">เคยมี BE?</th><th data-sort="resignCount">จำนวนคนลาออก</th>
+            </tr></thead>
             <tbody id="combinedDetailBody"></tbody>
           </table>
         </div>
       </div>
 
       <div class="panel">
-        <h2>อายุงาน ณ วันที่ลาออก</h2>
-        <p class="desc">คำนวณจากวันที่เช็คอินครั้งแรก ถึงวันทำงานล่าสุดของแต่ละคนใน Data — หมายเหตุ:ตัวเลขนี้จะน้อยกว่าอายุงานจริง</p>
+        <h2>3. อายุงาน ณ วันที่ลาออก</h2>
+        <p class="desc">คำนวณจากวันที่เช็คอินครั้งแรก ถึงวันทำงานล่าสุดของแต่ละคนในประวัติเช็คอิน — หมายเหตุ: ถ้าใครเริ่มงานก่อนช่วงที่ log เริ่มเก็บข้อมูล ตัวเลขนี้จะน้อยกว่าอายุงานจริง</p>
         <div class="barlist" id="tenureBreakdown"></div>
       </div>
 
@@ -316,8 +346,84 @@
           </table>
         </div>
         <p class="foot-note">
-          หมายเหตุ: ใช้วันทำงานล่าสุด เป็นตัวประมาณวันลาออก และวันเช็คอินแรกสุด เป็นตัวประมาณวันเริ่มงาน
+          หมายเหตุวิธีคำนวณการลาออก: ชีต "BE ทั้งหมด" เป็น log เช็คอินรายวัน คอลัมน์ "สถานะ BE" แสดงสถานะล่าสุด ณ วันที่ดึงข้อมูล ซ้ำกันทุกแถวของคนคนเดียวกัน — dashboard นี้จึงใช้ "วันทำงานล่าสุด" เป็นตัวประมาณวันลาออก และ "วันเช็คอินแรกสุด" เป็นตัวประมาณวันเริ่มงาน
         </p>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 3 ================= -->
+    <div class="page" id="page3">
+      <div class="kpi-grid">
+        <div class="kpi warn">
+          <div class="num" id="kpiFillAvg">–</div>
+          <div class="label">จำนวนวันสรรหาเฉลี่ย (วัน)</div>
+        </div>
+        <div class="kpi">
+          <div class="num" id="kpiFillMin">–</div>
+          <div class="label">ต่ำสุด (วัน)</div>
+        </div>
+        <div class="kpi warn">
+          <div class="num" id="kpiFillMax">–</div>
+          <div class="label">สูงสุด (วัน)</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>ระยะเวลาการเติม BE แต่ละร้าน</h2>
+        <p class="desc">
+          วันที่ตำแหน่งว่าง: ใช้คอลัมน์ BB จากชีต "ร้านที่ต้องสรรหา" — ถ้าว่างใช้คอลัมน์ AZ แทน
+          วันเริ่มงาน: ใช้คอลัมน์ BA จากชีต "ร้านที่ต้องสรรหา" — ถ้าว่าง จะแสดง "-" และนับระยะเวลาว่างถึงวันปัจจุบันแทน
+          แสดงเฉพาะร้านที่มีรายชื่ออยู่ในชีต "ร้านที่ต้องสรรหา" เท่านั้น — ถ้าร้านไหนมี 2 แถวในชีตนั้น (ต้องการ BE 2 คน) จะนับแยก 2 รายการตามข้อมูล BA/BB ของแต่ละแถว
+        </p>
+        <div class="controls">
+          <input type="text" id="fillSearch" placeholder="ค้นหาชื่อร้าน / รหัสร้าน...">
+          <span class="count-pill" id="fillCount"></span>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr id="fillHeadRow">
+              <th data-sort="storeCode">รหัสร้าน</th><th data-sort="storeName">ชื่อร้าน</th><th data-sort="area">โซน</th><th data-sort="rawArea">พื้นที่</th><th data-sort="jobStatus">สถานะ</th><th data-sort="vacancyDate">วันที่ตำแหน่งว่าง</th><th data-sort="startDate">วันเริ่มงาน</th><th data-sort="days">ระยะเวลาเติม BE (วัน)</th>
+            </tr></thead>
+            <tbody id="fillBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 4 ================= -->
+    <div class="page" id="page4">
+      <div class="kpi-grid">
+        <div class="kpi warn">
+          <div class="num" id="kpiFillCleanAvg">–</div>
+          <div class="label">จำนวนวันสรรหาเฉลี่ย (วัน)</div>
+        </div>
+        <div class="kpi">
+          <div class="num" id="kpiFillCleanMin">–</div>
+          <div class="label">ต่ำสุด (วัน)</div>
+        </div>
+        <div class="kpi warn">
+          <div class="num" id="kpiFillCleanMax">–</div>
+          <div class="label">สูงสุด (วัน)</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>ระยะเวลาการเติม BE แต่ละร้าน (ไม่รวมค่าติดลบ)</h2>
+        <p class="desc">
+          เหมือนหน้า "3. สรรหา" ทุกอย่าง แต่ตัดรายการที่ระยะเวลาติดลบออก (กรณีข้อมูลจับคู่ผิดพลาด ทำให้วันเริ่มงานมาก่อนวันตำแหน่งว่าง) เหลือเฉพาะรายการที่ระยะเวลาเป็น 0 วันขึ้นไป
+        </p>
+        <div class="controls">
+          <input type="text" id="fillCleanSearch" placeholder="ค้นหาชื่อร้าน / รหัสร้าน...">
+          <span class="count-pill" id="fillCleanCount"></span>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr id="fillCleanHeadRow">
+              <th data-sort="storeCode">รหัสร้าน</th><th data-sort="storeName">ชื่อร้าน</th><th data-sort="area">โซน</th><th data-sort="rawArea">พื้นที่</th><th data-sort="jobStatus">สถานะ</th><th data-sort="vacancyDate">วันที่ตำแหน่งว่าง</th><th data-sort="startDate">วันเริ่มงาน</th><th data-sort="days">ระยะเวลาเติม BE (วัน)</th>
+            </tr></thead>
+            <tbody id="fillCleanBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -334,6 +440,8 @@ if(typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined'){
 const SPREADSHEET_ID = "1zYZFaFEups9XDVs2yw_ve4E0JNPCEKalnt8yh-_rwV0";
 const GID_BE_ALL = "812175426";
 const GID_RECRUIT = "140398926";
+const GID_HR = "748651713";
+const GID_MASTER = "0";
 
 let empMap = new Map();
 let storeCodeSet = new Set();
@@ -342,6 +450,9 @@ let recruitStoreAreaMap = new Map();
 let recruitStoreRawAreaMap = new Map();
 let recruitStoreCodeSet = new Set();
 let recruitBeerTypeMap = new Map();
+let hrStartDateMap = new Map();
+let masterBEStartDateMap = new Map();
+let masterBEResignDateMap = new Map();
 let resigned2026 = [];
 
 const statusDot = document.getElementById('statusDot');
@@ -369,6 +480,27 @@ function parseDMY(s){
   if(!d||!m||!y) return null;
   const dt = new Date(y, m-1, d);
   return isNaN(dt.getTime()) ? null : dt;
+}
+function parseFlexibleDate(s, swapDayMonth){
+  if(!s) return null;
+  const str = String(s).trim();
+  const match = str.match(/(\d{1,2})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{2,4})/);
+  if(!match) return null;
+  let d=parseInt(match[1],10), m=parseInt(match[2],10);
+  let y=parseInt(match[3],10);
+  if(y < 100) y += 2000;
+  if(swapDayMonth){ const t=d; d=m; m=t; }
+  if(!d||!m||!y || m<1||m>12||d<1||d>31) return null;
+  const dt = new Date(y, m-1, d);
+  return isNaN(dt.getTime()) ? null : dt;
+}
+function parseHRStartDate(abStr, aaStr){
+  const aaDate = parseDMY(aaStr);
+  const normal = parseFlexibleDate(abStr, false);
+  const swapped = parseFlexibleDate(abStr, true);
+  if(aaDate && normal && normal.getMonth() === aaDate.getMonth()) return normal;
+  if(aaDate && swapped && swapped.getMonth() === aaDate.getMonth()) return swapped;
+  return normal || swapped;
 }
 function fmtDate(dt){
   if(!dt) return '-';
@@ -472,9 +604,11 @@ function dedupeRows(rows){
   return out;
 }
 
-function processData(beAllRowsRaw, recruitRowsRaw){
+function processData(beAllRowsRaw, recruitRowsRaw, hrRowsRaw, masterRowsRaw){
   const beAllRows = dedupeRows(beAllRowsRaw);
   const recruitRows = dedupeRows(recruitRowsRaw);
+  const hrRows = dedupeRows(hrRowsRaw || []);
+  const masterRows = dedupeRows(masterRowsRaw || []);
   empMap = new Map();
   storeCodeSet = new Set();
   storeTypeProvinceMap = new Map();
@@ -514,14 +648,15 @@ function processData(beAllRowsRaw, recruitRowsRaw){
   recruitBeerTypeMap = new Map();
   window.__recruit = recruitRows.map(r=>{
     if(!r) return null;
-    const area=(r[50]||'').trim(), rawArea=(r[0]||'').trim(), storeCode=(r[1]||'').trim(), storeName=r[2]||'',
-          jobStatus=(r[9]||'').trim(), recruitGroup=r[29]||'', beerType=normalizeBeerType(r[23]||'');
+    const area=(r[50]||'').trim(), rawArea=(r[0]||'').trim(), storeCode=(r[1]||'').replace(/\s+/g,'').trim(), storeName=r[2]||'',
+          jobStatus=(r[9]||'').trim(), recruitGroup=r[29]||'', beerType=normalizeBeerType(r[23]||''),
+          azDate = parseFlexibleDate(r[51], false), vacancyDateBB = parseFlexibleDate(r[53], false), startDateBA = parseFlexibleDate(r[52], false);
     if(!storeCode) return null;
     if(area) recruitStoreAreaMap.set(storeCode, area);
     if(rawArea) recruitStoreRawAreaMap.set(storeCode, rawArea);
     if(r[23]) recruitBeerTypeMap.set(storeCode, beerType);
     recruitStoreCodeSet.add(storeCode);
-    return { area, rawArea, storeCode, storeName, jobStatus, recruitGroup, beerType, hadBE: storeCodeSet.has(storeCode) };
+    return { area, rawArea, storeCode, storeName, jobStatus, recruitGroup, beerType, azDate, vacancyDateBB, startDateBA, hadBE: storeCodeSet.has(storeCode) };
   }).filter(Boolean);
 
   const chosenByStore = new Map();
@@ -534,6 +669,49 @@ function processData(beAllRowsRaw, recruitRowsRaw){
     }
   });
   window.__recruitByStore = [...chosenByStore.values()];
+
+  hrStartDateMap = new Map();
+  hrRows.forEach(r=>{
+    if(!r) return;
+    const storeCode = (r[8]||'').trim();
+    const startDate = parseFlexibleDate(r[17], false);
+    if(!storeCode || !startDate) return;
+    if(!hrStartDateMap.has(storeCode)) hrStartDateMap.set(storeCode, []);
+    hrStartDateMap.get(storeCode).push(startDate);
+  });
+  hrStartDateMap.forEach(list=> list.sort((a,b)=>a-b));
+
+  masterBEStartDateMap = new Map();
+  masterBEResignDateMap = new Map();
+  masterRows.forEach(r=>{
+    if(!r) return;
+    const status = (r[2]||'').replace(/\s+/g,' ').trim();
+    const storeCode = (r[11]||'').replace(/\s+/g,'').trim();
+    if(!storeCode) return;
+    if(status.includes('ทำงานอยู่')){
+      const startDate = parseFlexibleDate(r[7], false) || parseFlexibleDate(r[9], false);
+      if(startDate){
+        if(!masterBEStartDateMap.has(storeCode)) masterBEStartDateMap.set(storeCode, []);
+        masterBEStartDateMap.get(storeCode).push(startDate);
+      }
+    }
+    if(status.includes('ลาออก')){
+      const resignDate = parseFlexibleDate(r[9], false);
+      if(resignDate && (!masterBEResignDateMap.has(storeCode) || resignDate > masterBEResignDateMap.get(storeCode))){
+        masterBEResignDateMap.set(storeCode, resignDate);
+      }
+    }
+  });
+  masterBEStartDateMap.forEach((list, code)=>{
+    const seen = new Set();
+    const deduped = list.filter(d=>{
+      const key = d.getTime();
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    masterBEStartDateMap.set(code, deduped);
+  });
 
   // ตรวจว่าคอลัมน์ J (สถานะ BE) มีค่าสถานะจริงหรือไม่ — ถ้าสูตรในชีตเสีย จะเป็นชื่อคน/#N/A
   const allEmps = [...empMap.values()];
@@ -578,7 +756,86 @@ function processData(beAllRowsRaw, recruitRowsRaw){
   attachSortableHeaders('report2HeadRow', report2SortState, renderReport2);
   renderZoneMonthlyChart();
   renderAreaMonthlyChart();
+  renderStoreMonthlyChart();
   populateFilters();
+  renderFillTimeReport();
+  renderFillTimeReportClean();
+}
+
+const fillSortState = { key:'days', dir:-1 };
+const fillCleanSortState = { key:'days', dir:-1 };
+function computeFillTimeRows(){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let rows = [];
+  window.__recruit.forEach(x=>{
+    if(!recruitStoreCodeSet.has(x.storeCode)) return;
+    const vacancyDate = x.vacancyDateBB || x.azDate;
+    if(!vacancyDate) return;
+    const startDate = x.startDateBA || null;
+    const days = startDate
+      ? Math.round((startDate - vacancyDate) / 86400000)
+      : Math.round((today - vacancyDate) / 86400000);
+    rows.push({ storeCode:x.storeCode, storeName:x.storeName, area:x.area, rawArea:x.rawArea, jobStatus:x.jobStatus, vacancyDate, startDate, days });
+  });
+  return rows;
+}
+
+const fillAccessors = {
+  storeCode:x=>x.storeCode||'', storeName:x=>x.storeName||'', area:x=>x.area||'', rawArea:x=>x.rawArea||'', jobStatus:x=>x.jobStatus||'',
+  vacancyDate:x=>x.vacancyDate?x.vacancyDate.getTime():0, startDate:x=>x.startDate?x.startDate.getTime():0, days:x=>x.days
+};
+
+function renderFillTable(ids, sortState, excludeNegative){
+  const search = document.getElementById(ids.search).value.trim().toLowerCase();
+  let rows = computeFillTimeRows();
+  if(excludeNegative) rows = rows.filter(x=>x.days >= 0);
+
+  if(search) rows = rows.filter(x=>
+    (x.storeName||'').toLowerCase().includes(search) || (x.storeCode||'').toLowerCase().includes(search)
+  );
+
+  rows = applySort(rows, sortState, fillAccessors);
+  attachSortableHeaders(ids.headRow, sortState, ()=>renderFillTable(ids, sortState, excludeNegative));
+
+  document.getElementById(ids.count).textContent = `แสดง ${rows.length.toLocaleString()} รายการ`;
+  document.getElementById(ids.body).innerHTML = rows.map(x=>`
+    <tr>
+      <td>${x.storeCode}</td>
+      <td>${x.storeName||'-'}</td>
+      <td>${x.area||'-'}</td>
+      <td>${x.rawArea||'-'}</td>
+      <td><span class="badge status">${x.jobStatus||'-'}</span></td>
+      <td>${fmtDate(x.vacancyDate)}</td>
+      <td>${x.startDate ? fmtDate(x.startDate) : '-'}</td>
+      <td style="font-weight:600;">${x.days}</td>
+    </tr>`).join('');
+
+  const allDays = rows.map(x=>x.days).sort((a,b)=>a-b);
+  if(allDays.length){
+    const avg = allDays.reduce((a,b)=>a+b,0)/allDays.length;
+    document.getElementById(ids.avg).textContent = avg.toFixed(1);
+    document.getElementById(ids.min).textContent = allDays[0].toLocaleString();
+    document.getElementById(ids.max).textContent = allDays[allDays.length-1].toLocaleString();
+  } else {
+    document.getElementById(ids.avg).textContent = '-';
+    document.getElementById(ids.min).textContent = '-';
+    document.getElementById(ids.max).textContent = '-';
+  }
+}
+
+function renderFillTimeReport(){
+  renderFillTable({
+    search:'fillSearch', headRow:'fillHeadRow', count:'fillCount', body:'fillBody',
+    avg:'kpiFillAvg', min:'kpiFillMin', max:'kpiFillMax'
+  }, fillSortState, false);
+}
+
+function renderFillTimeReportClean(){
+  renderFillTable({
+    search:'fillCleanSearch', headRow:'fillCleanHeadRow', count:'fillCleanCount', body:'fillCleanBody',
+    avg:'kpiFillCleanAvg', min:'kpiFillCleanMin', max:'kpiFillCleanMax'
+  }, fillCleanSortState, true);
 }
 
 function renderPage1KPIs(){
@@ -651,7 +908,7 @@ function renderPage2KPIs(){
   document.getElementById('kpiTopType').textContent = topKey(typeCounts);
   const inCount = resigned2026.filter(x=>x.inStoreList).length;
   const outCount = resigned2026.filter(x=>!x.inStoreList).length;
-  document.getElementById('scopeCountPill').textContent = `รายชื่อร้านปัจจุบัน: ${inCount.toLocaleString()} คน — นอกเหนือ: ${outCount.toLocaleString()} คน`;
+  document.getElementById('scopeCountPill').textContent = `ในรายชื่อ 300 ร้าน: ${inCount.toLocaleString()} คน — นอกเหนือ: ${outCount.toLocaleString()} คน`;
 }
 
 function renderBarList(containerId, countMap, colorClass, opts){
@@ -736,9 +993,9 @@ function selectAreaFilter(area){
   renderBreakdowns();
   renderZoneMonthlyChart();
   renderAreaMonthlyChart();
+  renderStoreMonthlyChart();
   populateFilters();
   updateDetailPanels();
-  scrollToVisibleDetailPanel();
 }
 
 function clearAreaFilter(){
@@ -751,6 +1008,7 @@ function clearAreaFilter(){
   renderBreakdowns();
   renderZoneMonthlyChart();
   renderAreaMonthlyChart();
+  renderStoreMonthlyChart();
   populateFilters();
   updateDetailPanels();
 }
@@ -827,7 +1085,6 @@ function selectTypeFilter(type){
   renderReport2();
   renderBreakdowns();
   updateDetailPanels();
-  scrollToVisibleDetailPanel();
 }
 
 function clearTypeFilter(){
@@ -922,6 +1179,22 @@ function scrollToVisibleDetailPanel(){
   });
 }
 
+const combinedSortState = { key:null, dir:1 };
+const combinedAccessors = {
+  storeCode: x=>x.storeCode||'',
+  storeName: x=>x.storeName||'',
+  area: x=>x.area||'',
+  rawArea: x=>x.rawArea||'',
+  beerType: x=>beerTypeOf(x.storeCode),
+  jobStatus: x=>x.jobStatus||'',
+  hadBE: x=> x.hadBE ? 1 : 0,
+  resignCount: x=> x.__resignCount||0
+};
+let combinedRawAreaVal = 'ALL';
+let combinedStatusVal = 'ALL';
+let combinedHadBEVal = 'ALL';
+let combinedBeerTypeVal = 'ALL';
+
 function renderCombinedDetailTable(){
   const area = areaFilterVal, type = typeFilterVal;
   if(area==='ALL' || type==='ALL') return;
@@ -933,29 +1206,62 @@ function renderCombinedDetailTable(){
   const resignCountByStore = new Map();
   rowsForBreakdown([]).forEach(x=>{ resignCountByStore.set(x.store, (resignCountByStore.get(x.store)||0)+1); });
   const totalResign = stores.reduce((sum,x)=> sum + (resignCountByStore.get(x.storeCode)||0), 0);
+  stores = stores.map(x=> ({ ...x, __resignCount: resignCountByStore.get(x.storeCode)||0 }));
 
-  const search = document.getElementById('combinedDetailSearch').value.trim().toLowerCase();
+  populateCombinedFilters(stores);
+
   let filtered = stores;
+  if(combinedRawAreaVal!=='ALL') filtered = filtered.filter(x=>x.rawArea===combinedRawAreaVal);
+  if(combinedStatusVal!=='ALL') filtered = filtered.filter(x=>x.jobStatus===combinedStatusVal);
+  if(combinedHadBEVal==='YES') filtered = filtered.filter(x=>x.hadBE);
+  if(combinedHadBEVal==='NO') filtered = filtered.filter(x=>!x.hadBE);
+  if(combinedBeerTypeVal!=='ALL') filtered = filtered.filter(x=>beerTypeOf(x.storeCode)===combinedBeerTypeVal);
+  const search = document.getElementById('combinedDetailSearch').value.trim().toLowerCase();
   if(search) filtered = filtered.filter(x=>
     (x.storeName||'').toLowerCase().includes(search) || (x.storeCode||'').toLowerCase().includes(search)
   );
-  filtered = [...filtered].sort((a,b)=>
-    (resignCountByStore.get(b.storeCode)||0) - (resignCountByStore.get(a.storeCode)||0)
-  );
+
+  if(combinedSortState.key){
+    filtered = applySort(filtered, combinedSortState, combinedAccessors);
+  } else {
+    filtered = [...filtered].sort((a,b)=> b.__resignCount - a.__resignCount);
+  }
+
   document.getElementById('combinedDetailTitle').textContent = `ร้านประเภท "${type}" ในพื้นที่ "${area}" (${stores.length.toLocaleString()} ร้าน — ลาออกรวม ${totalResign.toLocaleString()} คน)`;
   document.getElementById('combinedDetailCount').textContent = `แสดง ${filtered.length.toLocaleString()} ร้าน`;
   document.getElementById('combinedDetailBody').innerHTML = filtered.map(x=>{
-    const n = resignCountByStore.get(x.storeCode)||0;
+    const n = x.__resignCount;
     return `
     <tr>
       <td>${x.storeCode}</td>
       <td>${x.storeName||'-'}</td>
       <td>${x.area||'-'}</td>
+      <td>${x.rawArea||'-'}</td>
+      <td>${beerTypeOf(x.storeCode)}</td>
       <td><span class="badge status">${x.jobStatus||'-'}</span></td>
       <td>${x.hadBE ? '<span class="badge yes">เคยมี</span>' : '<span class="badge no">ไม่เคยมี</span>'}</td>
       <td>${n > 0 ? `<span class="badge no">${n}</span>` : '<span style="color:var(--ink-soft);">0</span>'}</td>
     </tr>`;
   }).join('');
+
+  attachSortableHeaders('combinedDetailHeadRow', combinedSortState, renderCombinedDetailTable);
+}
+
+function populateCombinedFilters(stores){
+  const rawAreaSel = document.getElementById('combinedRawAreaFilter');
+  const rawAreas = [...new Set(stores.map(x=>x.rawArea).filter(Boolean))].sort();
+  rawAreaSel.innerHTML = '<option value="ALL">ทุกพื้นที่</option>' + rawAreas.map(a=>`<option value="${a}">${a}</option>`).join('');
+  rawAreaSel.value = combinedRawAreaVal;
+
+  const statusSel = document.getElementById('combinedStatusFilter');
+  const statuses = [...new Set(stores.map(x=>x.jobStatus).filter(Boolean))].sort();
+  statusSel.innerHTML = '<option value="ALL">ทุกสถานะ</option>' + statuses.map(s=>`<option value="${s}">${s}</option>`).join('');
+  statusSel.value = combinedStatusVal;
+
+  const beerSel = document.getElementById('combinedBeerTypeFilter');
+  const beerTypes = [...new Set(stores.map(x=>beerTypeOf(x.storeCode)))].sort();
+  beerSel.innerHTML = '<option value="ALL">ทุกประเภทเบียร์</option>' + beerTypes.map(b=>`<option value="${b}">${b}</option>`).join('');
+  beerSel.value = combinedBeerTypeVal;
 }
 
 function sortValueCompare(a, b){
@@ -1146,7 +1452,7 @@ function renderReport2(){
       <td>${x.rawArea||'-'}</td>
       <td>${beerTypeOf(x.store)}</td>
       <td>${x.storeType||'-'}</td>
-      <td>${x.inStoreList ? '<span class="badge yes">ร้านปัจจุบัน</span>' : '<span class="badge no">นอกเหนือ</span>'}</td>
+      <td>${x.inStoreList ? '<span class="badge yes">ใน 300 ร้าน</span>' : '<span class="badge no">นอกเหนือ</span>'}</td>
       <td>${fmtDate(x.lastDate)}</td>
       <td>${x.tenureDays!==null ? x.tenureDays.toLocaleString() : '-'}</td>
     </tr>`).join('');
@@ -1248,17 +1554,17 @@ const areaSortState = { key:'total', dir:-1 };
 
 function renderAreaMonthlyChart(){
   const panel = document.getElementById('areaMonthPanel');
-  if(areaFilterVal === 'ALL'){
-    panel.style.display = 'none';
-    return;
-  }
   panel.style.display = 'block';
-  document.getElementById('areaMonthTitle').textContent = `การลาออกแยกพื้นที่ ในโซน "${areaFilterVal}" ตามเดือน + อัตราลาออกต่อร้าน`;
+  const zoneOn = areaFilterVal !== 'ALL';
+  document.getElementById('areaMonthTitle').textContent = zoneOn
+    ? `การลาออกแยกพื้นที่ ในโซน "${areaFilterVal}" ตามเดือน + อัตราลาออกต่อร้าน`
+    : `การลาออกแยกพื้นที่ ตามเดือน + อัตราลาออกต่อร้าน (ทุกโซน)`;
 
-  const rows = getScopedResigned().filter(x=>x.area === areaFilterVal);
+  const rows = zoneOn ? getScopedResigned().filter(x=>x.area === areaFilterVal) : getScopedResigned();
+  const storeBase = zoneOn ? window.__recruitByStore.filter(x=>x.area === areaFilterVal) : window.__recruitByStore;
 
   const areaStoreCounts = new Map();
-  window.__recruitByStore.filter(x=>x.area === areaFilterVal).forEach(x=>{
+  storeBase.forEach(x=>{
     const area = x.rawArea || 'ไม่ระบุพื้นที่';
     areaStoreCounts.set(area, (areaStoreCounts.get(area)||0)+1);
   });
@@ -1310,6 +1616,64 @@ function renderAreaMonthlyChart(){
   document.getElementById('rawAreaClearWrap').style.display = rawAreaFilterVal!=='ALL' ? 'inline' : 'none';
 }
 
+const storeSortState = { key:'total', dir:-1 };
+
+function renderStoreMonthlyChart(){
+  const panel = document.getElementById('storeMonthPanel');
+  if(areaFilterVal === 'ALL'){
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  const titleSuffix = rawAreaFilterVal!=='ALL' ? ` — พื้นที่ "${rawAreaFilterVal}"` : ` — โซน "${areaFilterVal}"`;
+  document.getElementById('storeMonthTitle').textContent = `การลาออกแยกร้าน ตามเดือน${titleSuffix}`;
+
+  const rows = rowsForBreakdown([]);
+
+  const storeMonthCounts = new Map();
+  const storeTotals = new Map();
+  const storeNames = new Map();
+  const storeAreas = new Map();
+  const storeTypes = new Map();
+  rows.forEach(x=>{
+    const code = x.store || 'ไม่ทราบรหัส';
+    if(!storeMonthCounts.has(code)) storeMonthCounts.set(code, new Array(12).fill(0));
+    if(x.lastDate) storeMonthCounts.get(code)[x.lastDate.getMonth()]++;
+    storeTotals.set(code, (storeTotals.get(code)||0)+1);
+    if(!storeNames.has(code)) storeNames.set(code, x.storeName || '-');
+    if(!storeAreas.has(code)) storeAreas.set(code, x.rawArea || '-');
+    if(!storeTypes.has(code)) storeTypes.set(code, storeTypeOf(code));
+  });
+
+  let storeSummaries = [...storeTotals.keys()].map(code=>({
+    code, name: storeNames.get(code) || '-', area: storeAreas.get(code) || '-', type: storeTypes.get(code) || '-', total: storeTotals.get(code) || 0,
+    headcount: window.__recruit.filter(r=>r.storeCode===code).length
+  }));
+  const storeAccessors = { name:x=>x.name||'', area:x=>x.area||'', type:x=>x.type||'', total:x=>x.total, headcount:x=>x.headcount };
+  storeSummaries = applySort(storeSummaries, storeSortState, storeAccessors);
+  const maxMonthCount = Math.max(1, ...storeSummaries.flatMap(s=> storeMonthCounts.get(s.code)||[]));
+
+  const headRow = document.getElementById('storeMonthHeadRow');
+  headRow.innerHTML = '<th data-sort="name">ชื่อร้าน</th><th data-sort="area">พื้นที่</th><th data-sort="type">ประเภทร้าน</th><th data-sort="headcount">Headcount</th>' + MONTH_LABELS_SHORT.map(m=>`<th>${m}</th>`).join('') + '<th data-sort="total">total คนลาออก</th>';
+  attachSortableHeaders('storeMonthHeadRow', storeSortState, renderStoreMonthlyChart);
+
+  document.getElementById('storeMonthBody').innerHTML = storeSummaries.map(({code,name,area,type,total,headcount})=>{
+    const counts = storeMonthCounts.get(code) || new Array(12).fill(0);
+    return `<tr>
+      <td>${name}</td>
+      <td>${area}</td>
+      <td>${type}</td>
+      <td>${headcount.toLocaleString()}</td>
+      ${counts.map(c=>{
+        const intensity = c/maxMonthCount;
+        const bg = c>0 ? `rgba(201,121,12,${0.12 + intensity*0.55})` : 'transparent';
+        return `<td style="background:${bg};">${c>0?c:''}</td>`;
+      }).join('')}
+      <td style="font-weight:600;">${total.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+}
+
 function selectRawAreaFilter(area){
   rawAreaFilterVal = (rawAreaFilterVal === area) ? 'ALL' : area;
   document.getElementById('rawAreaFilterR2').value = rawAreaFilterVal;
@@ -1328,6 +1692,7 @@ function refreshPage2(){
   renderReport2();
   renderZoneMonthlyChart();
   renderAreaMonthlyChart();
+  renderStoreMonthlyChart();
   renderAreaDetailTable();
   populateFilters();
 }
@@ -1357,6 +1722,8 @@ document.getElementById('scopeFilterSeg').addEventListener('click', e=>{
   refreshPage2();
 });
 document.getElementById('searchStore').addEventListener('input', renderReport1);
+document.getElementById('fillSearch').addEventListener('input', renderFillTimeReport);
+document.getElementById('fillCleanSearch').addEventListener('input', renderFillTimeReportClean);
 document.getElementById('recruitGroupFilter').addEventListener('change', e=>{ recruitGroupFilterVal = e.target.value; renderReport1(); });
 document.getElementById('report1ZoneFilter').addEventListener('change', e=>{ report1ZoneVal = e.target.value; renderReport1(); });
 document.getElementById('report1AreaFilter').addEventListener('change', e=>{ report1AreaVal = e.target.value; renderReport1(); });
@@ -1392,6 +1759,10 @@ document.getElementById('areaDetailTypeFilter').addEventListener('change', e=>{
 document.getElementById('areaDetailSearch').addEventListener('input', renderAreaDetailTable);
 document.getElementById('typeDetailSearch').addEventListener('input', renderTypeDetailTable);
 document.getElementById('combinedDetailSearch').addEventListener('input', renderCombinedDetailTable);
+document.getElementById('combinedRawAreaFilter').addEventListener('change', e=>{ combinedRawAreaVal = e.target.value; renderCombinedDetailTable(); });
+document.getElementById('combinedStatusFilter').addEventListener('change', e=>{ combinedStatusVal = e.target.value; renderCombinedDetailTable(); });
+document.getElementById('combinedHadBEFilter').addEventListener('change', e=>{ combinedHadBEVal = e.target.value; renderCombinedDetailTable(); });
+document.getElementById('combinedBeerTypeFilter').addEventListener('change', e=>{ combinedBeerTypeVal = e.target.value; renderCombinedDetailTable(); });
 
 
 async function loadAll(){
@@ -1402,8 +1773,8 @@ async function loadAll(){
   errorBox.style.display = 'none';
   content.style.display = 'none';
   try{
-    const [beAllRows, recruitRows] = await Promise.all([fetchGviz(GID_BE_ALL), fetchGviz(GID_RECRUIT)]);
-    processData(beAllRows, recruitRows);
+    const [beAllRows, recruitRows, hrRows, masterRows] = await Promise.all([fetchGviz(GID_BE_ALL), fetchGviz(GID_RECRUIT), fetchGviz(GID_HR), fetchGviz(GID_MASTER)]);
+    processData(beAllRows, recruitRows, hrRows, masterRows);
     loadingBox.style.display = 'none';
     content.style.display = 'block';
     statusDot.className = 'dot live';
